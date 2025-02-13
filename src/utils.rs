@@ -29,3 +29,16 @@ pub fn load_input(day: u32, debug: bool) -> Vec<String> {
 
     input_into_lines(&file_path)
 }
+
+// get number of digits in a number, base 10
+pub fn num_digits(mut n: usize) -> usize {
+    let mut count = 0;
+    if n == 0 {
+        return 1; // Special case for 0
+    }
+    while n > 0 {
+        n /= 10;
+        count += 1;
+    }
+    count
+}
