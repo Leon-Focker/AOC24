@@ -97,7 +97,7 @@ fn rotate_orientation(orientation: (isize, isize)) -> (isize, isize) {
 
 fn part1(map: &mut Map, guard_position: &(usize, usize, (isize, isize))) -> i32 {
     let mut result = 0;
-    let mut guard_position: (usize, usize, (isize, isize)) = guard_position.clone();
+    let mut guard_position: (usize, usize, (isize, isize)) = *guard_position;
 
     // let the guard wander through the grid and mark where he has been
     loop {
@@ -140,7 +140,7 @@ fn part2(map: &mut Map, orig_guard_position: &(usize, usize, (isize, isize))) ->
         let mut new_map = map.clone();
         // set new blockade
         new_map.grid[y][x] = 1;
-        let mut guard_position: (usize, usize, (isize, isize)) = orig_guard_position.clone();
+        let mut guard_position: (usize, usize, (isize, isize)) = *orig_guard_position;
 
         let mut step_nr = 4;
         let mut last_return = 2;

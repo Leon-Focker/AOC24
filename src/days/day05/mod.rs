@@ -34,18 +34,18 @@ struct Update {
     list: Vec<i32>,
 }
 
-fn part1(rules: &Vec<(i32,i32)>, updates: &Vec<Update>) -> i32 {
+fn part1(rules: &[(i32,i32)], updates: &Vec<Update>) -> i32 {
     let mut result = 0;
 
     for update in updates {
-        result += check_update(&rules, update);
+        result += check_update(rules, update);
     }
 
     result
 }
 
 // return value of middle page of update, if rules check out, else return 0
-fn check_update (rules: &Vec<(i32,i32)>, update: &Update) -> i32 {
+fn check_update (rules: &[(i32,i32)], update: &Update) -> i32 {
     let mut past_pages: Vec<i32> = Vec::new();
 
     // go through all numbers in update
@@ -67,7 +67,7 @@ fn part2(rules: &Vec<(i32,i32)>, updates: &Vec<Update>)  -> i32 {
     let mut result = 0;
 
     for update in updates {
-        result += correct_update(&rules, &update, false);
+        result += correct_update(rules, update, false);
     }
 
     result

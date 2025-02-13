@@ -32,7 +32,7 @@ fn part1(trailheads: &Vec<(usize, usize)>, topographic_map: &Vec<Vec<usize>>)-> 
 
     // score all trailheads and sum result
     for trailhead in trailheads {
-        result += get_trailhead_score(*trailhead, &topographic_map);
+        result += get_trailhead_score(*trailhead, topographic_map);
     }
 
     result
@@ -43,7 +43,7 @@ fn part2(trailheads: &Vec<(usize, usize)>, topographic_map: &Vec<Vec<usize>>)-> 
 
     // score all trailheads and sum result
     for trailhead in trailheads {
-        result += get_other_trailhead_score(*trailhead, &topographic_map);
+        result += get_other_trailhead_score(*trailhead, topographic_map);
     }
 
     result
@@ -77,7 +77,7 @@ fn find_paths ((x, y): (usize, usize), topographic_map: &Vec<Vec<usize>>) -> Vec
     let current = topographic_map[y][x];
     // yay, we found an end to a trail!
     if current == 9 {
-        return vec![(x, y)]
+        vec![(x, y)]
         // keep looking
     } else {
         let mut result = Vec::new();
@@ -88,7 +88,7 @@ fn find_paths ((x, y): (usize, usize), topographic_map: &Vec<Vec<usize>>) -> Vec
         let left = (x.saturating_sub(1), y);
 
         // check whether trail continues
-        for (x, y) in vec![top, right, bottom, left] {
+        for (x, y) in [top, right, bottom, left] {
             if topographic_map[y][x] == current + 1 {
                 result.extend(find_paths((x, y), topographic_map))
             }

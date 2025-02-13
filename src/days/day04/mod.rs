@@ -43,7 +43,7 @@ fn part1(lines: &Vec<String>) -> i32 {
 }
 
 // Yes, this is ugly as hell, and technically I don't need to check for X and M...
-fn check_for_xmas (matrix: &Vec<Vec<char>>, position: (usize, usize), x_direction: i32, y_direction: i32) -> bool {
+fn check_for_xmas (matrix: &[Vec<char>], position: (usize, usize), x_direction: i32, y_direction: i32) -> bool {
     let nr_rows = matrix.len() as i32;
     let nr_collums = matrix[0].len() as i32;
     if matrix[position.0][position.1] == 'X' {
@@ -80,9 +80,7 @@ fn part2(lines: &Vec<String>) -> i32 {
     for row in 1..(nr_rows-1) {
         for index in 0..char_matrix[row].len() {
             // When char is an A, check for an X-Mas
-            if char_matrix[row][index] == 'A' {
-                if check_for_x_mas(&char_matrix, (row, index)) {result += 1}
-            }
+            if char_matrix[row][index] == 'A' && check_for_x_mas(&char_matrix, (row, index)) {result += 1}
         }
     }
 
@@ -90,18 +88,22 @@ fn part2(lines: &Vec<String>) -> i32 {
 }
 
 // Also ugly as hell and no need to check for A again
-fn check_for_x_mas (matrix: &Vec<Vec<char>>, position: (usize, usize)) -> bool {
+fn check_for_x_mas (matrix: &[Vec<char>], position: (usize, usize)) -> bool {
     if matrix[position.0][position.1] == 'A' &&
-        (position.0 as i32)-1 >= 0 && (position.1 as i32)-1 >= 0 &&
+        (position.0 as i32) > 0 && (position.1 as i32) > 0 &&
         (position.0 as i32)+1 < matrix.len() as i32 && (position.1 as i32)+1 < matrix[0].len() as i32 {
-        if matrix[(position.0)-1][(position.1)-1] == 'M' && matrix[(position.0)-1][(position.1)+1] == 'M' {
-            if matrix[(position.0)+1][(position.1)-1] == 'S' && matrix[(position.0)+1][(position.1)+1] == 'S' {return true}
-        } else if matrix[(position.0)-1][(position.1)-1] == 'M' && matrix[(position.0)-1][(position.1)+1] == 'S' {
-            if matrix[(position.0)+1][(position.1)-1] == 'M' && matrix[(position.0)+1][(position.1)+1] == 'S' {return true}
-        } else if matrix[(position.0)-1][(position.1)-1] == 'S' && matrix[(position.0)-1][(position.1)+1] == 'S' {
-            if matrix[(position.0)+1][(position.1)-1] == 'M' && matrix[(position.0)+1][(position.1)+1] == 'M' {return true}
-        } else if matrix[(position.0)-1][(position.1)-1] == 'S' && matrix[(position.0)-1][(position.1)+1] == 'M' {
-            if matrix[(position.0)+1][(position.1)-1] == 'S' && matrix[(position.0)+1][(position.1)+1] == 'M' {return true}
+        if matrix[(position.0)-1][(position.1)-1] == 'M' && matrix[(position.0)-1][(position.1)+1] == 'M' &&
+            matrix[(position.0)+1][(position.1)-1] == 'S' && matrix[(position.0)+1][(position.1)+1] == 'S'
+            ||
+            matrix[(position.0)-1][(position.1)-1] == 'M' && matrix[(position.0)-1][(position.1)+1] == 'S' &&
+                matrix[(position.0)+1][(position.1)-1] == 'M' && matrix[(position.0)+1][(position.1)+1] == 'S'
+            ||
+            matrix[(position.0)-1][(position.1)-1] == 'S' && matrix[(position.0)-1][(position.1)+1] == 'S' &&
+                matrix[(position.0)+1][(position.1)-1] == 'M' && matrix[(position.0)+1][(position.1)+1] == 'M'
+            ||
+            matrix[(position.0)-1][(position.1)-1] == 'S' && matrix[(position.0)-1][(position.1)+1] == 'M' &&
+                matrix[(position.0)+1][(position.1)-1] == 'S' && matrix[(position.0)+1][(position.1)+1] == 'M' {
+            return true
         }
     }
     false

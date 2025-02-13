@@ -34,7 +34,7 @@ fn part2(lines: &Vec<String>) -> i32 {
 
 fn check_report(report: Vec<i32>) -> bool {
     // true if numbers are increasing, false if not
-    let increasing: bool = if (report[0] - report[1]) < 0 {true} else {false};
+    let increasing: bool = (report[0] - report[1]) < 0;
     let mut last = report[0];
 
     for number in &report[1..] {

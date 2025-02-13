@@ -40,7 +40,7 @@ fn part1(antenna_map: HashMap<char, Vec<(usize, usize)>>, max_x: usize, max_y: u
     result.len()
 }
 
-fn produce_antinodes(antennas: &Vec<(usize, usize)>) -> Vec<(usize, usize)> {
+fn produce_antinodes(antennas: &[(usize, usize)]) -> Vec<(usize, usize)> {
     let mut result = Vec::new();
 
     for i in 0..antennas.len() {
@@ -58,7 +58,7 @@ fn produce_antinodes(antennas: &Vec<(usize, usize)>) -> Vec<(usize, usize)> {
     result
 }
 
-fn produce_harmonic_antinodes(antennas: &Vec<(usize, usize)>, max_x: usize, max_y: usize) -> Vec<(usize, usize)> {
+fn produce_harmonic_antinodes(antennas: &[(usize, usize)], max_x: usize, max_y: usize) -> Vec<(usize, usize)> {
     let mut result = Vec::new();
 
     for i in 0..antennas.len() {

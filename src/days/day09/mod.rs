@@ -93,7 +93,7 @@ fn part2(mut old_files: Vec<i32>) -> usize {
         if value > 0 {
             for (k, &(file, index)) in files_with_index.iter().enumerate() {
                 // check whether there is space and need to insert
-                if file <= -value && inserted == false && k < i+offset {
+                if file <= -value && !inserted && k < i+offset {
                     // Insert Value into the empty space
                     new_order.push((value, val_index));
                     // decrease the empty space when value was inserted
@@ -109,7 +109,7 @@ fn part2(mut old_files: Vec<i32>) -> usize {
             }
             // update the Vector (if we moved a value, free up the space it had used)
             files_with_index = new_order;
-            if inserted == true {
+            if inserted {
                 files_with_index[i+offset] = (- files_with_index[i+offset].0, 0)
             }
         }
