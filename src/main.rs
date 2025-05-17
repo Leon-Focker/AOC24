@@ -2,7 +2,7 @@ mod days;
 mod utils;
 
 fn main() {
-    let day = 14;
+    let day = 15;
     let debug = false;
     match day {
         1 => days::day01::run(debug),
@@ -19,6 +19,7 @@ fn main() {
         12 => days::day12::run(debug),
         13 => days::day13::run(debug),
         14 => days::day14::run(debug),
+        15 => days::day15::run(debug),
         _ => println!("The day you requested is not implemented"),
     }
 }
