@@ -5,7 +5,7 @@ pub fn run(debug: bool) {
     let lines = load_input(DAY, debug);
     let (mut normal_warehouse, mut large_warehouse, mut moves) = parse_input(&lines);
 
-    let result_part1 = part1(&mut normal_warehouse, &mut moves);
+    let result_part1 = part1(&mut normal_warehouse, &mut moves.clone());
     let result_part2 = part2(&mut large_warehouse, &mut moves);
 
     println!("Day {}, Part 1: {}", DAY, result_part1);
@@ -13,7 +13,7 @@ pub fn run(debug: bool) {
 }
 
 // Shared data struct for common fields and logic
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct WarehouseData {
     map: Vec<Vec<usize>>,
     width: usize,
@@ -70,7 +70,7 @@ trait Warehouse {
     }
 
     fn update(&mut self, moves: &mut Moves) -> bool;
-    fn space_behind(&self, mv: &Move, x: usize, y: usize);
+    fn space_behind(&self, mv: &Move, x: usize, y: usize)-> Vec<(usize, usize)>;
 
     fn draw(&self) -> () {
         for y in 0..self.data().height {
@@ -94,7 +94,7 @@ trait Warehouse {
     fn gps_sum(&self) -> usize;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct NormalWarehouse {
     data: WarehouseData,
 }
@@ -132,12 +132,12 @@ impl Warehouse for NormalWarehouse {
                     self.data.map[ry][rx] = 1;
                 },
                 _ => {
-                    let (space_x, space_y) = self.space_behind(next_move, x, y);
-                    if (space_x, space_y) != (0, 0) {
+                    let space_behind = self.space_behind(next_move, x, y);
+                    if !space_behind.is_empty() {
                         self.data.robot = (x, y);
                         self.data.map[y][x] = 3;
                         self.data.map[ry][rx] = 1;
-                        self.data.map[space_y][space_x] = 2;
+                        self.data.map[space_behind[0].1][space_behind[0].0] = 2;
                     }
                 },
             }
@@ -145,15 +145,17 @@ impl Warehouse for NormalWarehouse {
         }
     }
 
-    fn space_behind(&self, mv: &Move, mut x: usize, mut y: usize) -> (usize, usize) {
+    fn space_behind(&self, mv: &Move, mut x: usize, mut y: usize) -> Vec<(usize, usize)> {
+        let mut result = Vec::new();
+
         loop {
             (x, y) = ((x as isize + mv.0) as usize, (y as isize + mv.1) as usize);
             let block = self.data.map[y][x];
 
             match block {
-                1 => return (x, y),
+                1 => {result.push((x, y)); return result},
                 2 => (),
-                _ => return (0, 0),
+                _ => return result,
             }
         }
     }
@@ -171,6 +173,24 @@ struct LargeWarehouse {
 impl LargeWarehouse {
     fn new() -> Self {
         Self { data: WarehouseData::new() }
+    }
+
+    fn move_boxes(&mut self, mv: &Move, boxes: Vec<(usize,usize)>) -> () {
+        let mut new_map = self.data.map.clone();
+        let mut new_locations: Vec<(usize, usize)> = Vec::with_capacity(boxes.len());
+
+        // move boxes to new location
+        for bx in boxes.iter().rev() {
+            let new_location = ((bx.0 as isize + mv.0) as usize, (bx.1 as isize + mv.1) as usize);
+            new_locations.push(new_location);
+            new_map[new_location.1][new_location.0] = self.data.map[bx.1][bx.0];
+        }
+
+        for bx in boxes.into_iter().filter(|x| !new_locations.contains(x)) {
+            new_map[bx.1][bx.0] = 1;
+        }
+
+        self.data.map = new_map;
     }
 }
 
@@ -200,15 +220,14 @@ impl Warehouse for LargeWarehouse {
                     self.data.map[y][x] = 3;
                     self.data.map[ry][rx] = 1;
                 },
-                // todo 4 -> linke seite, 5 -> rechte Seite.
-                // todo wie dann so viele boxen schieben??
                 _ => {
-                    let (space_x, space_y) = self.space_behind(next_move, x, y);
-                    if (space_x, space_y) != ((0, 0), (0, 0)) {
+                    let to_move = self.space_behind(next_move, x, y);
+
+                    if !to_move.is_empty() {
+                        self.move_boxes(next_move, to_move);
                         self.data.robot = (x, y);
                         self.data.map[y][x] = 3;
                         self.data.map[ry][rx] = 1;
-                        self.data.map[space_y][space_x] = 2;
                     }
                 },
             }
@@ -216,10 +235,39 @@ impl Warehouse for LargeWarehouse {
         }
     }
 
-    fn space_behind(&self, _mv: &Move, _x: usize, _y: usize) -> ((usize, usize), (usize, usize)) {
-        todo!()
-        // for left and right same as normalWarehouse, up and down need to check for two spaces next to each other
-        // if a 5 is above/below a 4 and vice versa, check for 2 boxes (recursively)...
+    fn space_behind(&self, mv: &Move, x: usize, y: usize) -> Vec<(usize,usize)> {
+        let mut result = Vec::new();
+        let block = self.data.map[y][x];
+        let mut is_blocked= false;
+
+        match block {
+            1 => { result.push(((x as isize - mv.0) as usize,(y as isize - mv.1) as usize)); result},
+            0 => return Vec::new(),
+            _ => {
+                result.push((x, y));
+
+                if mv.0 == 0 {
+                    let other_half = if block == 4 { (x + 1, y) } else { (x - 1, y) };
+                    result.push(other_half);
+                }
+
+                for blk in result.clone() {
+                    let mut res = self
+                        .space_behind(
+                            mv,
+                            (blk.0 as isize + mv.0) as usize,
+                            (blk.1 as isize + mv.1) as usize
+                        );
+
+                    if res.is_empty() {
+                        is_blocked = true;
+                    } else {
+                        result.append(&mut res);
+                    }
+                }
+               if is_blocked { Vec::new() } else { result }
+            },
+        }
     }
 
     fn gps_sum(&self) -> usize {
@@ -227,10 +275,11 @@ impl Warehouse for LargeWarehouse {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 struct Move(isize, isize);
 
 // 0 -> up, 1 -> down, 2 -> down, 3 -> left, 4 -> stop
+#[derive(Debug, Clone)]
 struct Moves {
     moves: Vec<Move>,
     current: isize,
@@ -334,10 +383,15 @@ fn part1(normal_warehouse: &mut NormalWarehouse, moves: &mut Moves) -> usize {
     normal_warehouse.gps_sum()
 }
 
-fn part2(large_warehouse: &mut LargeWarehouse, _moves: &mut Moves) -> usize {
-    let result = 0;
+fn part2(large_warehouse: &mut LargeWarehouse, moves: &mut Moves) -> usize {
 
-    large_warehouse.draw();
+    loop {
+        //large_warehouse.draw();
+        if !large_warehouse.update(moves) {
+            break
+        }
+    }
 
-    result
+    //large_warehouse.draw();
+    large_warehouse.gps_sum()
 }
