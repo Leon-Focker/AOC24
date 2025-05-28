@@ -36,6 +36,7 @@ impl Maze {
         self.height = self.map.len();
     }
 
+    #[allow(dead_code)]
     fn draw(&self) -> () {
         for y in 0..self.height {
             println!();

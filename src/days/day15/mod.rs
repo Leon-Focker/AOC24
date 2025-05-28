@@ -58,6 +58,7 @@ impl WarehouseData {
 
 // Trait providing shared methods
 trait Warehouse {
+    #[allow(dead_code)]
     fn data(&self) -> &WarehouseData;
     fn data_mut(&mut self) -> &mut WarehouseData;
 
@@ -72,6 +73,7 @@ trait Warehouse {
     fn update(&mut self, moves: &mut Moves) -> bool;
     fn space_behind(&self, mv: &Move, x: usize, y: usize)-> Vec<(usize, usize)>;
 
+    #[allow(dead_code)]
     fn draw(&self) -> () {
         for y in 0..self.data().height {
             println!();
